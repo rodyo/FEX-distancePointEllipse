@@ -30,7 +30,7 @@
 % Based on:
 % Ik-Sung Kim: "An algorithm for finding the distance between two 
 % ellipses". Commun. Korean Math. Soc. 21 (2006), No.3, pp.559-567
-function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b,c,u,v)    
+function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b, c,u,v)    
     % Please report bugs and inquiries to:
     %
     % Name       : Rody P.S. Oldenhuis
@@ -75,10 +75,10 @@ function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b,c,u,v)
     for ii = 1:size(XYZ,1)
         
         % find optimal point on the ellipse
-        s = R\(XYZ(ii,:).' - c); % transform current point
-        A = a*s(1);              % The constants A,B and C follow from the
-        B = b*s(2);              % condition dQ/dt = 0, with Q = Q(s,E,t) the
-        C = b*b - a*a;           % XY-distance between point s and ellipse E
+        s = R.'*(XYZ(ii,:).' - c); % transform current point
+        A = a*s(1);                % The constants A,B and C follow from the
+        B = b*s(2);                % condition dQ/dt = 0, with Q = Q(s,E,t) the
+        C = b*b - a*a;             % XY-distance between point s and ellipse E
 
         % We have to find [t_hat], the true anomaly on the ellipse that minimizes
         % the distance between the associated point on the ellipse [E] and the
