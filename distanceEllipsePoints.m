@@ -37,7 +37,6 @@ function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b, c,u,v)
     % E-mail     : oldenhuis@gmail.com
     % Licence    : 2-clause BSD (See License.txt)
 
-
     % If you find this work useful, please consider a donation:
     % https://www.paypal.me/RodyO/3.5
 
