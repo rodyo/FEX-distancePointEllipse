@@ -1,10 +1,10 @@
-% distanceEllipsePoints     Computes the distances between an ellipse 
+% distanceEllipsePoints     Computes the distances between an ellipse
 %                           and an arbitrary number of points (in 3D)
 %
 % USAGE:
 %   [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b,c,u,v)
 %
-% The input arguments are 
+% The input arguments are
 %
 % =============================================================
 %  name     description                           size
@@ -14,32 +14,30 @@
 %   b       Ellipse's semi-minor axis             (1x1)
 %   c       Location of Ellipse's center          (1x3)
 %   u       Direction of Ellipse's primary axis   (1x3)
-%           (unit vector towards [a])             
+%           (unit vector towards [a])
 %   v       Direction of Ellipse's secondary axis (1x3)
-%           (unit vector towards [b])             
+%           (unit vector towards [b])
 %
 % The output arguments are
 % =============================================================
 %  name     description                           size
 % =============================================================
 % min_dist  distances between the points and the  (Nx1)
-%           ellipse                 
+%           ellipse
 % f_min     corresponding true anomalies on the   (Nx1)
-%           ellipse (-pi <= f <= +pi)         
+%           ellipse (-pi <= f <= +pi)
 %
 % Based on:
-% Ik-Sung Kim: "An algorithm for finding the distance between two 
+% Ik-Sung Kim: "An algorithm for finding the distance between two
 % ellipses". Commun. Korean Math. Soc. 21 (2006), No.3, pp.559-567
-function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b, c,u,v)    
+function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b, c,u,v)
     % Please report bugs and inquiries to:
     %
     % Name       : Rody P.S. Oldenhuis
-    % E-mail     : oldenhuis@gmail.com    (personal)
-    %              oldenhuis@luxspace.lu  (professional)
-    % Affiliation: LuxSpace sàrl
-    % Licence    : BSD
-    
-    
+    % E-mail     : oldenhuis@gmail.com
+    % Licence    : 2-clause BSD (See License.txt)
+
+
     % If you find this work useful, please consider a donation:
     % https://www.paypal.me/RodyO/3.5
 
@@ -66,23 +64,23 @@ function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b, c,u,v)
 
     % make sure everything is correct shape & size
     c = c(:);   XYZ = reshape(XYZ,[],3);
-    u = u(:);   v   = v(:); 
-    
+    u = u(:);   v   = v(:);
+
     % make sure [u] and [v] are UNIT-vectors
     if (norm(u) ~= 1), u = u/norm(u); end
     if (norm(v) ~= 1), v = v/norm(v); end
-    
-    % initialize some variables to speed up computation    
-    R = [u, v, cross(u,v)];   % rotation matrix to put ellipse in standard form    
-    comp0 = [eye(3),[0;0;0]]; % part of a companion matrix for a quartic     
-        
+
+    % initialize some variables to speed up computation
+    R = [u, v, cross(u,v)];   % rotation matrix to put ellipse in standard form
+    comp0 = [eye(3),[0;0;0]]; % part of a companion matrix for a quartic
+
     % initialize output
     min_dist = zeros(size(XYZ,1),1);
     f_min    = min_dist;
-    
+
     % loop through all points in [XYZ]
     for ii = 1:size(XYZ,1)
-        
+
         % find optimal point on the ellipse
         s = R.'*(XYZ(ii,:).' - c); % transform current point
         A = a*s(1);                % The constants A,B and C follow from the
@@ -91,36 +89,36 @@ function [min_dist, f_min] = distanceEllipsePoints(XYZ, a,b, c,u,v)
 
         % We have to find [t_hat], the true anomaly on the ellipse that minimizes
         % the distance between the associated point on the ellipse [E] and the
-        % point [s]. The solution depends on the value of [C]. 
-        
+        % point [s]. The solution depends on the value of [C].
+
         % If C = 0, the solution is easy:
         if C == 0
             t_hat = atan2(B,A);
 
         % otherwise, we have to solve a quartic eqution in A,B,C, which is
         % done most quickly by using EIG() on its companion matrix:
-        else        
+        else
             % associated companion matrix
             comp  = [-2*A/C, -(A*A+B*B-C*C)/C/C, +2*A/C, (A/C)^2; comp0];
             % solve this quartic (real values only)
-            Roots = eig(comp);  
-            Roots = Roots(imag(Roots)==0);  
-            
+            Roots = eig(comp);
+            Roots = Roots(imag(Roots)==0);
+
             % extract optimal point
             sint1  = sqrt(max(0,1-Roots.^2));   sint2 = -sint1;
             sints  = [sint1, sint2];            costs = [Roots,Roots];
             selld  = (s(1)-a*costs).^2 + (s(2)-b*sints).^2;
             [dummy, tind] = min(selld(:));%#ok PORT: support MATLAB < R2009a
-            sinth = sints(tind);                costh = costs(tind);             
+            sinth = sints(tind);                costh = costs(tind);
             t_hat = atan2(sinth, costh);
 
         end % if
 
         % compute distance
-        min_dist(ii) = sqrt( (s(1)-a*cos(t_hat))^2 + (s(2)-b*sin(t_hat))^2 + s(3)^2 );    
+        min_dist(ii) = sqrt( (s(1)-a*cos(t_hat))^2 + (s(2)-b*sin(t_hat))^2 + s(3)^2 );
         % insert the optimal thetas
         f_min(ii) = t_hat;
-    
+
     end % for
-    
+
 end % function
